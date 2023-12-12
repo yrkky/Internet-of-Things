@@ -26,6 +26,9 @@ void setup()
   bledis.setModel("Bluefruit Feather 52");
   bledis.begin();
 
+  // Start BLE HID Service
+  blehid.begin();
+
   Bluefruit.Periph.setConnInterval(9, 12);
 
   startAdv():
