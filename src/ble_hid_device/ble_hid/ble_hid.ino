@@ -25,6 +25,10 @@ void setup()
   bledis.setManufacturer("Adafruit Industries");
   bledis.setModel("Bluefruit Feather 52");
   bledis.begin();
+
+  Bluefruit.Periph.setConnInterval(9, 12);
+
+  startAdv():
 }
 
 void startAdv(void)
@@ -43,7 +47,6 @@ void startAdv(void)
   Bluefruit.Advertising.setInterval(32, 244);
   Bluefruit.Advertising.setFastTimeout(30);
   Bluefruit.Advertising.start(0);
-  startAdv();
 }
 
 void loop()
