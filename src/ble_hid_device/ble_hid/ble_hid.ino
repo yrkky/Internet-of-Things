@@ -31,7 +31,7 @@ void setup()
 
   Bluefruit.Periph.setConnInterval(9, 12);
 
-  startAdv():
+  startAdv();
 }
 
 void startAdv(void)
