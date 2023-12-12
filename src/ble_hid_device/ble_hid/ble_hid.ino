@@ -43,6 +43,7 @@ void startAdv(void)
   Bluefruit.Advertising.setInterval(32, 244);
   Bluefruit.Advertising.setFastTimeout(30);
   Bluefruit.Advertising.start(0);
+  startAdv();
 }
 
 void loop()
