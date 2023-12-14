@@ -1,6 +1,7 @@
 #include <ble-iot_inferencing.h>
 #include <bluefruit.h>
 #include <LSM6DS3.h>
+#include "service_uuids.h"
 
 #define ON LOW
 #define OFF HIGH
@@ -10,8 +11,8 @@
 // More info on these constants can be found here:
 // https://github.com/hathach/tinyusb/blob/master/src/class/hid/hid.h
 #define DOUBLE_CLICK_KEY 0x00CD // Keyboard Play/Pause
-#define INCREASE_KEY 0x00E9     // Keyboard Volume Up
-#define DECREASE_KEY 0x00EA     // Keyboard Volume Down
+#define INCREASE_KEY 0x00E9   // Keyboard Volume Up
+#define DECREASE_KEY 0x00EA // Keyboard Volume Down
 
 const int RED_PIN = 11;
 const int BLUE_PIN = 12;
@@ -21,6 +22,17 @@ static bool debug_nn = false;
 LSM6DS3 myIMU(I2C_MODE, 0x6A);
 BLEDis bledis;
 BLEHidAdafruit blehid;
+
+BLEService customService = BLEService("00001812-0000-1000-8000-00805f9b34fb");
+BLECharacteristic PP = BLECharacteristic(UUID_CHR_DATA);
+BLECharacteristic UP = BLECharacteristic(UUID_CHR_DATA);
+BLECharacteristic DOWN = BLECharacteristic(UUID_CHR_DATA);
+
+// "Manufacturer" data - explained later, but it's really just random
+uint8_t manufacturerData[4] = {0x00, 0x12, 0x4D, 0xC3};
+
+uint8_t data[4] = {0x00, 0x00, 0x00, 0x00};
+
 
 bool hasKeyPressed = false;
 
@@ -52,17 +64,19 @@ void setup()
     // Setup BLE
     Bluefruit.begin();
     Bluefruit.setTxPower(4);
-    Bluefruit.setName("FingerTracker");
-
-    // Configure and Start Device Information Service
-    bledis.setManufacturer("Adafruit Industries");
-    bledis.setModel("Bluefruit Feather 52");
-    bledis.begin();
 
     // Start BLE HID Service
-    blehid.begin();
+    customService.begin();
+    PP.begin();
+    UP.begin();
+    DOWN.begin();
 
-    Bluefruit.Periph.setConnInterval(9, 12);
+    customService.Periph.setConnInterval(9, 12);
+
+    PP.setProperties(CHR_PROPS_READ);
+    UP.setProperties(CHR_PROPS_READ);
+    DOWN.setProperties(CHR_PROPS_READ);
+
 
     startAdv();
 }
