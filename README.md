@@ -7,3 +7,6 @@ Made by:
 | ----------------- | ------------- | ------------------------------- |
 | Janne Yrjänäinen | Y58554010 | jyrjanai20@student.oulu.fi |
 | Joona Syrjäkoski | Y58172266 | jsyrjako20@student.oulu.fi |
+
+
+## Project description
