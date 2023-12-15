@@ -172,6 +172,8 @@ void loop()
     {
         char ch = (char)Serial.read();
         Serial.write(ch);
+        uint16_t key = ch;
+        sendKey(key);
         blehid.keyPress(ch);
         hasKeyPressed = true;
         delay(5);

@@ -4,6 +4,7 @@
 #define LEDSTRIP_PIN 4
 #define LEDSTRIP_LEDS 60
 #define LED_PIN_BUILTIN 2
+#define BRIGHTNESS 64
 
 CRGB leds[LEDSTRIP_LEDS];
 int trackedLedIndex = 0;
@@ -13,13 +14,16 @@ BLEByteCharacteristic ledCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", 
 
 void setup()
 {
+    delay(3000);
     Serial.begin(9600);
     while (!Serial)
         ;
 
     pinMode(LED_PIN_BUILTIN, OUTPUT);
+    pinMode(LEDSTRIP_PIN, OUTPUT);
     FastLED.addLeds<WS2812B, LEDSTRIP_PIN, GRB>(leds, LEDSTRIP_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.show(); // Initialize all LEDs to 'off'
+    FastLED.setBrightness(BRIGHTNESS);
 
     // begin initialization
     if (!BLE.begin())
@@ -65,6 +69,11 @@ void turnOnNext5()
     }
     FastLED.show();
     trackedLedIndex += 5;
+    if (trackedLedIndex > LEDSTRIP_LEDS)
+    {
+        trackedLedIndex = 0;
+        trackedLedIndex += trackedLedIndex - LEDSTRIP_LEDS;
+    }
 }
 
 void turnOffNext5()
@@ -78,10 +87,16 @@ void turnOffNext5()
     }
     FastLED.show();
     trackedLedIndex -= 5;
+    // if the trackedLedIndex is less than the 0, reset it to NUM_LEDS
+    if (trackedLedIndex < 0)
+    {
+        trackedLedIndex = LEDSTRIP_LEDS;
+    }
 }
 
 void toggleStrip()
 {
+    FastLED.clear();
     if (isStripOn)
     {
         for (int i = 0; i < trackedLedIndex; ++i)
@@ -106,20 +121,25 @@ void toggleStrip()
     isStripOn = !isStripOn;
 }
 
-void executeCommand(uint16_t command)
+void executeCommand(uint8_t command)
 {
+    Serial.println("Current Led Index: " + String(trackedLedIndex));
     switch (command)
     {
     case 0x00E9: // Turn on the next 5 LEDs
         turnOnNext5();
+        Serial.println("Execute Increase");
         break;
     case 0x00EA: // Turn off the next 5 LEDs
         turnOffNext5();
+        Serial.println("Execute Decrease");
         break;
     case 0x00CD: // Toggle the whole strip off and on
         toggleStrip();
+        Serial.println("Execute Toggle");
         break;
     default:
+        Serial.println("Not Known Command");
         break;
     }
 }
@@ -151,10 +171,16 @@ void ledCharacteristicWritten(BLEDevice central, BLECharacteristic characteristi
 
     const uint8_t *valuedata = characteristic.value();
     Serial.print("    Value: ");
+    uint8_t command = 0x0000;
     for (int k = 0; k < characteristic.valueLength(); k++)
     {
-        Serial.print(valuedata[k]);
+        Serial.println(valuedata[k]);
+        command = command << 1;
+        command = command | valuedata[k];
+        Serial.println(command);
     }
+    Serial.println(command);
+    executeCommand(command);
 
     if (ledCharacteristic.value())
     {
@@ -166,4 +192,6 @@ void ledCharacteristicWritten(BLEDevice central, BLECharacteristic characteristi
         Serial.println("LED off");
         digitalWrite(LED_PIN_BUILTIN, LOW);
     }
+
+    ledCharacteristic.setValue(0);
 }

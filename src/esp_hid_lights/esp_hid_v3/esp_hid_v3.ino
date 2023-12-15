@@ -70,16 +70,16 @@ void loop()
     }
     else if (BLE.connected())
     {
-        Serial.println("Connected to XIAO nRF52840 Sense \n");
+        // Serial.println("Connected to XIAO nRF52840 Sense \n");
         Serial.println("Waiting for key press \n");
-        delay(1000);
+        delay(10);
 
         if (peripheral.localName() == "FingerTracker")
         {
             // Discover the peripheral's services and characteristics
             if (peripheral.discoverAttributes())
             {
-                Serial.println("Attributes discovered");
+                // Serial.println("Attributes discovered");
             }
             else
             {
@@ -87,27 +87,111 @@ void loop()
                 return;
             }
 
+            for (int i = 0; i < peripheral.serviceCount(); i++)
+            {
+                BLEService service = peripheral.service(i);
+                Serial.print("Service ");
+                Serial.print(i);
+                Serial.print(": UUID = ");
+                Serial.println(service.uuid());
+            }
+
+            // // print out the UUIDs and properties of each discovered characteristic:
+            // Serial.println("Peripheral characteristics:");
+            // BLECharacteristic foundCharacteristic;
+            // const char *foundCharacteristicUUID;
+            // BLEDescriptor foundDescriptor;
+            // const char *foundDescriptorUUID;
+
+            // for (int i = 0; i < peripheral.characteristicCount(); i++)
+            // {
+            //     foundCharacteristic = peripheral.characteristic(i);
+            //     foundCharacteristicUUID = foundCharacteristic.uuid();
+            //     Serial.print("  Characteristic ");
+            //     Serial.print(i);
+            //     Serial.print(": UUID = ");
+            //     Serial.print(foundCharacteristicUUID);
+            //     Serial.print(", properties = 0x");
+            //     Serial.println(foundCharacteristic.properties(), HEX);
+
+            //     if (foundCharacteristic.canRead())
+            //     {
+            //         foundCharacteristic.read();
+            //         const uint8_t *valuedata = foundCharacteristic.value();
+            //         Serial.print("    Value: ");
+            //         for (int k = 0; k < foundCharacteristic.valueLength(); k++)
+            //         {
+            //             Serial.print(valuedata[k]);
+            //         }
+            //         Serial.println();
+            //     }
+
+            //     for (int j = 0; j < foundCharacteristic.descriptorCount(); j++)
+            //     {
+            //         foundDescriptor = foundCharacteristic.descriptor(j);
+            //         foundDescriptorUUID = foundDescriptor.uuid();
+            //         Serial.print("    Descriptor ");
+            //         Serial.print(j);
+            //         Serial.print(": UUID = ");
+            //         Serial.println(foundDescriptorUUID);
+            //     }
+            // }
+
             // Find the characteristic you want to read
             // Replace "serviceUuid" and "charUuid" with the UUIDs of the service and characteristic you want to read
-            BLECharacteristic keyCharacteristic = peripheral.characteristic("1812", 0x2092);
+            // BLECharacteristic keyCharacteristic = peripheral.characteristic(12);
 
-            if (keyCharacteristic)
-            {
-                // Read the value of the characteristic
-                if (keyCharacteristic.valueUpdated())
-                {
-                    const uint8_t *data = keyCharacteristic.value();
-                    String key(reinterpret_cast<const char *>(data));
-                    Serial.print("Received key press from FingerTracker: ");
-                    Serial.println(key);
-                }
-            }
-            else
-            {
-                Serial.print("Peripheral does not have key characteristic! :");
-                Serial.print(keyCharacteristic);
-                Serial.println();
-            }
+            // if (keyCharacteristic)
+            // {
+            //     Serial.print("Found key characteristic: ");
+            //     Serial.println(keyCharacteristic.uuid());
+            // }
+            // else
+            // {
+            //     Serial.println("No key characteristic found!");
+            // }
+
+            // if (keyCharacteristic.canSubscribe())
+            // {
+            //     Serial.println("Can Subscribe");
+            //     keyCharacteristic.subscribe();
+            // }
+            // if (keyCharacteristic.canRead())
+            // {
+            //     Serial.println("Can Read");
+            //     keyCharacteristic.read();
+            //     Serial.println("Read");
+            // }
+            // uint16_t value16 = 0x2A05;
+            // int read_value = keyCharacteristic.readValue(value16);
+            // Serial.println(read_value);
+
+            // if (keyCharacteristic)
+            // {
+            //     const uint8_t *data = keyCharacteristic.value();
+            //     String key(reinterpret_cast<const char *>(data));
+            //     Serial.print("KeyCharacteristic value: ");
+            //     Serial.println(key);
+
+            //     // Read the value of the characteristic
+            //     if (keyCharacteristic.valueUpdated())
+            //     {
+            //         const uint8_t *data = keyCharacteristic.value();
+            //         String key(reinterpret_cast<const char *>(data));
+            //         Serial.print("Received key press from FingerTracker: ");
+            //         Serial.println(key);
+            //     }
+            //     else
+            //     {
+            //         Serial.println("Key press not received!");
+            //     }
+            // }
+            // else
+            // {
+            //     Serial.print("Peripheral does not have key characteristic! :");
+            //     Serial.print(keyCharacteristic);
+            //     Serial.println();
+            // }
         }
         else
         {
@@ -121,5 +205,12 @@ void loop()
         Serial.println("Peripheral disconnected!");
         digitalWrite(LED_BUILTIN, LOW);
         delay(1000);
+    }
+}
+
+void readKeyPresses(BLECharacteristic keyCharacteristic)
+{
+    while (keyCharacteristic.canRead())
+    {
     }
 }
