@@ -11,7 +11,12 @@ Made by:
 
 ## Project description
 
-This project is a simple IoT project that uses a Seeed Xiao BLE nRF52840 Sense board to control an ESP32 board through BLE. The ESP32 is attached to a LED strip and the Seeed Xiao is used to control the LED strip through BLE HID service.
+This project is a simple IoT project that uses a Seeed Xiao BLE nRF52840 Sense board to analyze the movement and control an ESP32 board through BLE. The ESP32 is attached to a LED strip and the Seeed Xiao is used to control the LED strip through ESP32 and a BLE service. Analyzing of the movements is done on the nRF52840 Sense board using a trained model.
+
+### Project Demo Video:
+
+[![Video](https://i3.ytimg.com/vi/y8-wVh2UvLo/hqdefault.jpg
+)](https://youtu.be/y8-wVh2UvLo)
 
 ### Seeed Xiao nRF52840 Sense
 
@@ -32,8 +37,7 @@ This project is a simple IoT project that uses a Seeed Xiao BLE nRF52840 Sense b
 
 
 
-You can create your own motion regonition model with Edge Impulse and use it with this project. The model used in this project is a simple model that recognizes 3 different motions: "UP", "DOWN" and "DOUBLE CLICK". The model is trained with accelerometer data and the data is collected with the Seeed Xiao board. The model is then converted to a Arduino library and used in this project.
-https://wiki.seeedstudio.com/XIAOEI/
+We have included a very basic gesture recognition model. You can create your own motion regonition model with [Edge Impulse](https://docs.edgeimpulse.com/docs/tutorials/end-to-end-tutorials/continuous-motion-recognition/) and use it with this project. The model used in this project is a simple model that recognizes 3 different motions: "UP", "DOWN" and "DOUBLE CLICK". The model is trained with accelerometer data and the data is collected with the Seeed Xiao board. The model is then converted to a Arduino library and used in this project. Detailed [instructions](https://wiki.seeedstudio.com/XIAOEI/) on how to create and use your own model.
 
 
 ## How to use
@@ -60,12 +64,18 @@ Navigate to Tools > Board > Boards Manager..., type the keyword "seeed nrf52" in
 
 ### Seeed Xiao nRF52840 Sense
 Download the project and open it in Arduino IDE.
-
-You also need to install the Edge Impulse library to Arduino IDE. You can find the library from [Edge Impulse Arduino Library](./src/Library/)
+Include the provided Edge Impulse library to Arduino IDE from [here](./src/Library/).
 
 ![Image of Add custom library](./images/add_zip.png)
 
-After installing the libraries you can compile and upload the code to the boards. Before uploading the code you might need to change the following lines in the [code](./src/ESP32_Lightstrip/ESP32_Lightstrip.ino) to match your setup:
+After installing the libraries you can compile and upload the code to the boards.
+
+You need to upload the code to both boards. The ESP32 board needs to be connected to a LED strip. The Seeed Xiao board is used to control the LED strip through Bluetooth.
+
+
+### ESP32
+
+Download the project and open it in Arduino IDE. Before uploading the code you might need to change the following lines in the [code](./src/ESP32_Lightstrip/ESP32_Lightstrip.ino) to match your setup:
 
 
 ```c++
@@ -75,10 +85,3 @@ After installing the libraries you can compile and upload the code to the boards
 #define BRIGHTNESS 64
 ```
 
-
-You need to upload the code to both boards. The ESP32 board needs to be connected to a LED strip. The Seeed Xiao board is used to control the LED strip through Bluetooth.
-
-
-### ESP32
-
-Download the project and open it in Arduino IDE.
