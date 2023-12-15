@@ -2,13 +2,14 @@
 #include <FastLED.h>
 
 #define LEDSTRIP_PIN 4
-#define LEDSTRIP_LEDS 60
+#define LEDSTRIP_LEDS 50
 #define LED_PIN_BUILTIN 2
 #define BRIGHTNESS 64
 
 CRGB leds[LEDSTRIP_LEDS];
 int trackedLedIndex = 0;
 bool isStripOn = true;
+bool isConnected = false;
 BLEService ledService("19B10000-E8F2-537E-4F6C-D104768A1214");                                       // create service
 BLEByteCharacteristic ledCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite); // create led characteristic and allow remote device to read and write
 
@@ -75,7 +76,7 @@ void turnOnNext5()
     FastLED.clear();
     for (int i = 0; i < LEDSTRIP_LEDS; ++i)
     {
-        if (i < trackedLedIndex + 5)
+        if (i <= trackedLedIndex + 5)
         {
             leds[i] = 0xFF9900;
         }
@@ -94,7 +95,7 @@ void turnOffNext5()
     FastLED.clear();
     for (int i = 0; i < LEDSTRIP_LEDS; ++i)
     {
-        if (i < trackedLedIndex - 5)
+        if (i <= trackedLedIndex - 5)
         {
             leds[i] = 0xFF9900;
         }
@@ -163,12 +164,23 @@ void executeCommand(uint8_t command)
 void loop()
 {
     // poll for Bluetooth® Low Energy events
-    BLE.poll();
+    BLE.poll(50);
+
+
+    if (!BLE.connected())
+    {
+        digitalWrite(LED_PIN_BUILTIN, HIGH);
+        delay(500);
+        digitalWrite(LED_PIN_BUILTIN, LOW);
+        delay(500);
+    }
+    
 }
 
 void blePeripheralConnectHandler(BLEDevice central)
 {
     // central connected event handler
+    isConnected = true;
     Serial.print("Connected event, central: ");
     Serial.println(central.address());
 }
@@ -176,6 +188,7 @@ void blePeripheralConnectHandler(BLEDevice central)
 void blePeripheralDisconnectHandler(BLEDevice central)
 {
     // central disconnected event handler
+    isConnected = false;
     Serial.print("Disconnected event, central: ");
     Serial.println(central.address());
 }

@@ -13,10 +13,6 @@
 #define INCREASE_KEY 0x00E9     // Keyboard Volume Up
 #define DECREASE_KEY 0x00EA     // Keyboard Volume Down
 
-const int RED_PIN = 11;
-const int BLUE_PIN = 12;
-const int GREEN_PIN = 13;
-
 static bool debug_nn = false;
 LSM6DS3 myIMU(I2C_MODE, 0x6A);
 
@@ -32,7 +28,6 @@ void setup()
     pinMode(LED_BLUE, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
 
-    // if (!IMU.begin()) {
     if (!myIMU.begin())
     {
         printf("Failed to initialize IMU!\r\n");
@@ -53,12 +48,21 @@ void setup()
 
     Serial.println("Bluetooth® Low Energy Central - LED control");
 
+    digitalWrite(LED_GREEN, ON);
+    digitalWrite(LED_BLUE, ON);
+    digitalWrite(LED_RED, OFF);
+
     // start scanning for peripherals
     BLE.scanForUuid("19B10000-E8F2-537E-4F6C-D104768A1214");
 }
 
 void loop()
 {
+    if (!BLE.connected())
+    {
+        blinkLed(LED_BLUE, 500);
+        BLE.scanForUuid("19B10000-E8F2-537E-4F6C-D104768A1214"); // start scanning
+    }
     // check if a peripheral has been discovered
     BLEDevice peripheral = BLE.available();
 
@@ -79,19 +83,17 @@ void loop()
             return;
         }
 
-        // stop scanning
-        BLE.stopScan();
-
-        controlLed(peripheral);
-
-        // peripheral disconnected, start scanning again
-        BLE.scanForUuid("19B10000-E8F2-537E-4F6C-D104768A1214");
+        BLE.stopScan();         // stop scanning when the correct peripheral is discovered
+        controlLed(peripheral); // control the peripheral LED
     }
     else
     {
         // peripheral disconnected, start scanning again
+        BLE.disconnect();
+        BLE.scanForUuid("19B10000-E8F2-537E-4F6C-D104768A1214");
         Serial.println("Peripheral disconnected");
-        delay(1000);
+        
+        delay(100);
     }
 }
 
@@ -124,7 +126,6 @@ void controlLed(BLEDevice peripheral)
     }
 
     // retrieve the LED characteristic
-    // BLEService ledService = peripheral.service("19B10000-E8F2-537E-4F6C-D104768A1214");
     BLECharacteristic ledCharacteristic = peripheral.characteristic("19B10001-E8F2-537E-4F6C-D104768A1214");
 
     if (!ledCharacteristic)
@@ -212,14 +213,14 @@ void controlLed(BLEDevice peripheral)
         {
             printf("Decrease\n");
             ledCharacteristic.writeValue((byte)DECREASE_KEY);
-            blinkLed(RED_PIN, 100);
+            blinkLed(LED_RED, 100);
         }
 
         if (result.classification[1].value > 0.8)
         {
             printf("Double click\n");
             ledCharacteristic.writeValue((byte)DOUBLE_CLICK_KEY);
-            blinkLed(BLUE_PIN, 100);
+            blinkLed(LED_BLUE, 100);
         }
 
         if (result.classification[2].value > 0.8)
@@ -232,49 +233,28 @@ void controlLed(BLEDevice peripheral)
         {
             printf("Increase\n");
             ledCharacteristic.writeValue((byte)INCREASE_KEY);
-            blinkLed(GREEN_PIN, 100);
+            blinkLed(LED_GREEN, 100);
         }
     }
 
     Serial.println("Peripheral disconnected");
+    peripheral.disconnect();
+
+    if (peripheral.connected())
+    {
+        Serial.println("Peripheral still connected.");
+    }
+    else
+    {
+        Serial.println("Peripheral disconnected: YES");
+    }
+    return;
 }
 
-// void sendKey(uint16_t key)
-// {
-//     blehid.consumerKeyPress(key);
-//     delay(5);
-//     blehid.consumerKeyRelease();
-//     delay(5);
-// }
-
-/**
- * @brief Return the sign of the number
- *
- * @param number
- * @return int 1 if positive (or 0) -1 if negative
- */
 float get_sign(float number)
 {
     return (number >= 0.0) ? 1.0 : -1.0;
 }
-
-// void startAdv(void)
-// {
-//     // Advertising packet
-//     Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
-//     Bluefruit.Advertising.addTxPower();
-//     Bluefruit.Advertising.addAppearance(BLE_APPEARANCE_HID_KEYBOARD);
-
-//     // Include BLE HID service
-//     Bluefruit.Advertising.addService(blehid);
-//     Bluefruit.Advertising.addName();
-
-//     // Set advertising interval
-//     Bluefruit.Advertising.restartOnDisconnect(true);
-//     Bluefruit.Advertising.setInterval(32, 244);
-//     Bluefruit.Advertising.setFastTimeout(30);
-//     Bluefruit.Advertising.start(0);
-// }
 
 void blinkLed(int ledPin, uint32_t delay_ms)
 {
