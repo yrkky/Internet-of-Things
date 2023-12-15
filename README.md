@@ -65,7 +65,7 @@ You also need to install the Edge Impulse library to Arduino IDE. You can find t
 
 ![Image of Add custom library](./images/add_zip.png)
 
-After installing the libraries you can compile and upload the code to the boards. Before uploading the code you might need to change the following lines in the [code](./src/esp_hid_lights/esp_hid_v5/esp_hid_v5.ino) to match your setup:
+After installing the libraries you can compile and upload the code to the boards. Before uploading the code you might need to change the following lines in the [code](./src/ESP32_Lightstrip/ESP32_Lightstrip.ino) to match your setup:
 
 
 ```c++
