@@ -58,11 +58,24 @@ void setup()
     Serial.println("Bluetooth® device active, waiting for connections...");
 }
 
+void toggleBuiltInLed()
+{
+    if (isStripOn)
+    {
+        digitalWrite(LED_PIN_BUILTIN, LOW);
+    }
+    else
+    {
+        digitalWrite(LED_PIN_BUILTIN, HIGH);
+    }
+}
+
 void turnOnNext5()
 {
-    for (int i = trackedLedIndex; i < trackedLedIndex + 5; ++i)
+    FastLED.clear();
+    for (int i = 0; i < LEDSTRIP_LEDS; ++i)
     {
-        if (i < LEDSTRIP_LEDS)
+        if (i < trackedLedIndex + 5)
         {
             leds[i] = 0xFF9900;
         }
@@ -72,17 +85,18 @@ void turnOnNext5()
     if (trackedLedIndex > LEDSTRIP_LEDS)
     {
         trackedLedIndex = 0;
-        trackedLedIndex += trackedLedIndex - LEDSTRIP_LEDS;
     }
+    Serial.println("Current Led Index: " + String(trackedLedIndex));
 }
 
 void turnOffNext5()
 {
-    for (int i = trackedLedIndex; i < trackedLedIndex + 5; ++i)
+    FastLED.clear();
+    for (int i = 0; i < LEDSTRIP_LEDS; ++i)
     {
-        if (i < LEDSTRIP_LEDS)
+        if (i < trackedLedIndex - 5)
         {
-            leds[i] = 0x000000;
+            leds[i] = 0xFF9900;
         }
     }
     FastLED.show();
@@ -92,6 +106,7 @@ void turnOffNext5()
     {
         trackedLedIndex = LEDSTRIP_LEDS;
     }
+    Serial.println("Current Led Index: " + String(trackedLedIndex));
 }
 
 void toggleStrip()
@@ -118,12 +133,13 @@ void toggleStrip()
         }
     }
     FastLED.show();
+    toggleBuiltInLed();
     isStripOn = !isStripOn;
+    Serial.println("Current Led Index: " + String(trackedLedIndex));
 }
 
 void executeCommand(uint8_t command)
 {
-    Serial.println("Current Led Index: " + String(trackedLedIndex));
     switch (command)
     {
     case 0x00E9: // Turn on the next 5 LEDs
@@ -181,17 +197,6 @@ void ledCharacteristicWritten(BLEDevice central, BLECharacteristic characteristi
     }
     Serial.println(command);
     executeCommand(command);
-
-    if (ledCharacteristic.value())
-    {
-        Serial.println("LED on");
-        digitalWrite(LED_PIN_BUILTIN, HIGH);
-    }
-    else
-    {
-        Serial.println("LED off");
-        digitalWrite(LED_PIN_BUILTIN, LOW);
-    }
 
     ledCharacteristic.setValue(0);
 }
