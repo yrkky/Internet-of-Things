@@ -2,7 +2,7 @@
 
 Repository for 521043S-3004 Internet of Things 2023 Mini Project 2
 
-Made by:
+Made by Group 13:
 | Name | Student ID | Email |
 | ----------------- | ------------- | ------------------------------- |
 | Janne Yrjänäinen | Y58554010 | jyrjanai20@student.oulu.fi |
