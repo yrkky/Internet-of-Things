@@ -40,10 +40,11 @@ You need to install the following libraries to Arduino IDE:
 
 - ArduinoBLE
 - FastLED
+- [Seeed_Arduino_LSM6DS3](https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3)
 
 Install custom boards to Arduino IDE:
 
-- ESP32
+- esp32 by Espressif
 - Seeed Xiao nRF52840 Sense
 
 Navigate to File > Preferences, and fill "Additional Boards Manager URLs" with the urls below:
@@ -62,11 +63,15 @@ Navigate to Tools > Board > Boards Manager..., type the keyword "seeed nrf52" in
 ### Seeed Xiao nRF52840 Sense
 
 Download the project and open it in Arduino IDE.
-Include the provided Edge Impulse library to Arduino IDE from [here](./src/Library/).
+Include the provided Edge Impulse .ZIP library to Arduino IDE from [here](./src/Library/).
 
 ![Image of Add custom library](./images/add_zip.png)
 
-After installing the libraries you can compile and upload the code to the boards.
+Also download and include the [Seeed Arduino LSM6DS3](https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3) .ZIP file to Arduino IDE.
+
+![Image of GitHub Download .zip](./images/LSM6DS3-github-zip.png)
+
+After installing the libraries you can compile and upload the code to the boards. Select the correct board from Tools > Board > "Seeed nRF52 mbed-enabled boards" > "Seeed XIAO BLE Sense - nRF52840".
 
 You need to upload the code to both boards. The ESP32 board needs to be connected to a LED strip. The Seeed Xiao board is used to control the LED strip through Bluetooth.
 
@@ -80,6 +85,8 @@ Download the project and open it in Arduino IDE. Before uploading the code you m
 #define LED_PIN_BUILTIN 2
 #define BRIGHTNESS 64
 ```
+
+Before flashing the ESP32, select the correct board from Tools > Board > esp32 > (e.g.) NodeMCU-32S.
 
 The internal led of the board will flash blue when the board is not connected to the XIAO nRF52840.
 
